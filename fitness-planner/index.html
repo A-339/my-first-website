@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>军士生体能训练计划生成器</title>
+    <meta name="description" content="为在校军士生提供专业的体能训练计划，包括力量训练、耐力训练和专项训练">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            min-height: 100vh;
+            color: #2d3748;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1a365d;
+            margin-bottom: 1rem;
+        }
+        .header p {
+            font-size: 1.1rem;
+            color: #4a5568;
+        }
+        .form-section {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+        }
+        .form-section:hover {
+            transform: translateY(-2px);
+        }
+        .form-section h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #4a5568;
+            margin-bottom: 0.5rem;
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .checkbox-item input[type="checkbox"] {
+            width: 1.2rem;
+            height: 1.2rem;
+            border-radius: 0.25rem;
+            border: 2px solid #e2e8f0;
+            transition: all 0.2s;
+        }
+        .checkbox-item input[type="checkbox"]:checked {
+            background-color: #4299e1;
+            border-color: #4299e1;
+        }
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: #4299e1;
+            color: white;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+            text-align: center;
+        }
+        .btn:hover {
+            background: #3182ce;
+            transform: translateY(-1px);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+        .result-section {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-top: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        .result-section h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .result-content {
+            white-space: pre-line;
+            line-height: 1.6;
+            color: #4a5568;
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+        .badge-required {
+            background-color: #fed7d7;
+            color: #c53030;
+        }
+        .badge-optional {
+            background-color: #e2e8f0;
+            color: #4a5568;
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        .progress-bar {
+            height: 0.5rem;
+            background-color: #e2e8f0;
+            border-radius: 9999px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background-color: #4299e1;
+            transition: width 0.3s ease;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            .header {
+                padding: 1.5rem;
+            }
+            .header h1 {
+                font-size: 2rem;
+            }
+            .form-section {
+                padding: 1.5rem;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>军士生体能训练计划生成器</h1>
+            <p>基于《军事体育训练大纲》和《军人体能训练标准》，为在校军士生提供科学的体能训练计划</p>
+        </header>
+
+        <form id="fitnessForm" class="space-y-6">
+            <!-- 当前体能状况 -->
+            <section class="form-section">
+                <div class="section-header">
+                    <h2>当前体能状况</h2>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>身高 (cm) <span class="badge badge-required">必填</span></label>
+                        <input type="number" name="height" class="form-control" required min="100" max="250">
+                    </div>
+                    <div class="form-group">
+                        <label>体重 (kg) <span class="badge badge-required">必填</span></label>
+                        <input type="number" name="weight" class="form-control" required min="30" max="200">
+                    </div>
+                    <div class="form-group">
+                        <label>引体向上 (个) <span class="badge badge-required">必填</span></label>
+                        <input type="number" name="pull_ups" class="form-control" required min="0" max="50">
+                    </div>
+                    <div class="form-group">
+                        <label>3公里跑 (分钟) <span class="badge badge-required">必填</span></label>
+                        <input type="number" name="run_3km" class="form-control" required min="8" max="30">
+                    </div>
+                </div>
+            </section>
+
+            <!-- 目标体能状况 -->
+            <section class="form-section">
+                <div class="section-header">
+                    <h2>目标体能状况</h2>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>目标引体向上 (个) <span class="badge badge-required">必填</span></label>
+                        <input type="number" name="target_pull_ups" class="form-control" required min="0" max="50">
+                    </div>
+                    <div class="form-group">
+                        <label>目标3公里跑 (分钟) <span class="badge badge-required">必填</span></label>
+                        <input type="number" name="target_run_3km" class="form-control" required min="8" max="30">
+                    </div>
+                </div>
+            </section>
+
+            <!-- 个人健康信息 -->
+            <section class="form-section">
+                <div class="section-header">
+                    <h2>个人健康信息</h2>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>年龄 <span class="badge badge-required">必填</span></label>
+                        <input type="number" name="age" class="form-control" required min="16" max="60">
+                    </div>
+                    <div class="form-group">
+                        <label>性别 <span class="badge badge-required">必填</span></label>
+                        <select name="gender" class="form-control" required>
+                            <option value="">请选择</option>
+                            <option value="male">男</option>
+                            <option value="female">女</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group mt-6">
+                    <label>健康状况 <span class="badge badge-required">必填</span></label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="health_conditions" value="none">
+                            <span>无</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="health_conditions" value="heart_disease">
+                            <span>心脏病</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="health_conditions" value="hypertension">
+                            <span>高血压</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group mt-6">
+                    <label>训练习惯 <span class="badge badge-required">必填</span></label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="exercise_habits" value="none">
+                            <span>无</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="exercise_habits" value="regular">
+                            <span>有规律训练</span>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <div class="text-center">
+                <button type="submit" class="btn">生成训练计划</button>
+            </div>
+        </form>
+
+        <div id="result" class="result-section" style="display: none;">
+            <h2>训练计划</h2>
+            <div id="resultContent" class="result-content"></div>
+        </div>
+    </div>
+
+    <script>
+        function generatePlan() {
+            const currentForm = document.getElementById('fitnessForm');
+            const resultArea = document.getElementById('resultContent');
+
+            // 验证当前状态表单
+            const currentInputs = currentForm.querySelectorAll('input[required], select[required]');
+            let isCurrentFormValid = true;
+            currentInputs.forEach(input => {
+                if (!input.value.trim()) {
+                    isCurrentFormValid = false;
+                    input.classList.add('border-red-500');
+                } else {
+                    input.classList.remove('border-red-500');
+                }
+            });
+
+            // 如果任一表单未填写完整，显示错误提示并返回
+            if (!isCurrentFormValid) {
+                alert('请填写所有必填字段！');
+                return;
+            }
+
+            // 获取当前状态数据
+            const currentData = {
+                height: currentForm.height.value,
+                weight: currentForm.weight.value,
+                pull_ups: currentForm.pull_ups.value,
+                run_3km: currentForm.run_3km.value,
+                age: currentForm.age.value,
+                gender: currentForm.gender.value,
+                healthConditions: Array.from(currentForm.querySelectorAll('input[name="health_conditions"]:checked')).map(cb => cb.value),
+                exercise_habits: document.querySelector('input[name="exercise_habits"]:checked')?.value
+            };
+
+            // 获取目标状态数据
+            const targetData = {
+                target_pull_ups: currentForm.target_pull_ups.value,
+                target_run_3km: currentForm.target_run_3km.value
+            };
+
+            // 验证数值的合理性
+            if (!validateData(currentData, targetData)) {
+                return;
+            }
+
+            // 生成计划
+            const plan = generateFitnessPlan(currentData, targetData);
+            
+            // 显示结果
+            displayResults(plan);
+            resultArea.classList.remove('hidden');
+        }
+
+        function validateData(current, target) {
+            // 验证身高
+            if (current.height < 100 || current.height > 250 || target.target_run_3km < 8 || target.target_run_3km > 30) {
+                alert('请输入合理的身高范围（100-250厘米）和跑步时间（8-30分钟）！');
+                return false;
+            }
+
+            // 验证体重
+            if (current.weight < 30 || current.weight > 200 || target.target_pull_ups < 0 || target.target_pull_ups > 50) {
+                alert('请输入合理的体重范围（30-200公斤）和引体向上数量（0-50个）！');
+                return false;
+            }
+
+            // 验证引体向上数量
+            if (current.pull_ups < 0 || current.pull_ups > 50 || target.target_pull_ups < 0 || target.target_pull_ups > 50) {
+                alert('请输入合理的引体向上数量范围（0-50个）！');
+                return false;
+            }
+
+            // 验证跑步时间
+            if (current.run_3km < 8 || current.run_3km > 30 || target.target_run_3km < 8 || target.target_run_3km > 30) {
+                alert('请输入合理的跑步时间范围（8-30分钟）！');
+                return false;
+            }
+
+            // 验证年龄
+            if (current.age < 16 || current.age > 60) {
+                alert('请输入合理的年龄范围（16-60岁）！');
+                return false;
+            }
+
+            return true;
+        }
+
+        function generateFitnessPlan(currentData, targetData) {
+            // 计算BMI和体脂率
+            const currentBMI = (currentData.weight / Math.pow(currentData.height / 100, 2)).toFixed(1);
+            const targetBMI = (targetData.target_run_3km / Math.pow(targetData.target_run_3km / 60, 2)).toFixed(1);
+            
+            // 根据《军事体育训练大纲》和《军人体能训练标准》制定计划
+            let plan = {
+                workout: [],
+                diet: [],
+                health: []
+            };
+
+            // 1. 基础体能训练（根据《军事体育训练大纲》）
+            const baseTraining = {
+                warmup: "1. 5-10分钟热身运动\n2. 关节活动\n3. 轻度有氧运动",
+                cooldown: "1. 5-10分钟放松运动\n2. 拉伸运动\n3. 深呼吸放松"
+            };
+
+            // 2. 根据年龄和健康状况调整训练强度
+            const age = parseInt(currentData.age);
+            let intensity = "中等";
+            if (age < 18) {
+                intensity = "适中";
+            } else if (age > 60) {
+                intensity = "轻度";
+            }
+
+            // 3. 根据《军事体育训练大纲》制定运动计划
+            let weeklyPlan = [];
+            
+            // 每周训练安排（符合《军事体育训练大纲》要求）
+            const aerobicMinutes = 180; // 增加有氧训练时间
+            const strengthDays = 3; // 增加力量训练天数
+
+            // 4. 根据《军事体育训练大纲》制定具体计划
+            if (currentData.exercise_habits === 'none') {
+                // 初学者计划（符合《军事体育训练大纲》要求）
+                weeklyPlan = [
+                    {
+                        day: "周一",
+                        focus: "基础体能",
+                        activities: [
+                            "1. 3公里跑 20分钟（符合《军事体育训练大纲》要求）",
+                            "2. 基础力量训练 20分钟",
+                            "3. 拉伸放松 10分钟"
+                        ]
+                    },
+                    {
+                        day: "周三",
+                        focus: "专项训练",
+                        activities: [
+                            "1. 5公里跑 30分钟（符合《军事体育训练大纲》要求）",
+                            "2. 引体向上训练 15分钟",
+                            "3. 放松运动 10分钟"
+                        ]
+                    },
+                    {
+                        day: "周五",
+                        focus: "综合训练",
+                        activities: [
+                            "1. 有氧运动 20分钟",
+                            "2. 力量训练 20分钟",
+                            "3. 拉伸放松 10分钟"
+                        ]
+                    }
+                ];
+            } else {
+                // 有训练基础者计划（符合《军事体育训练大纲》要求）
+                weeklyPlan = [
+                    {
+                        day: "周一",
+                        focus: "力量训练",
+                        activities: [
+                            "1. 热身运动 10分钟",
+                            "2. 引体向上训练 30分钟（符合《军事体育训练大纲》要求）",
+                            "3. 5公里跑 25分钟",
+                            "4. 放松拉伸 10分钟"
+                        ]
+                    },
+                    {
+                        day: "周二",
+                        focus: "耐力训练",
+                        activities: [
+                            "1. 热身运动 10分钟",
+                            "2. 10公里跑 50分钟（符合《军事体育训练大纲》要求）",
+                            "3. 核心训练 20分钟",
+                            "4. 放松拉伸 10分钟"
+                        ]
+                    },
+                    {
+                        day: "周四",
+                        focus: "力量训练",
+                        activities: [
+                            "1. 热身运动 10分钟",
+                            "2. 俯卧撑训练 30分钟（符合《军事体育训练大纲》要求）",
+                            "3. 5公里跑 25分钟",
+                            "4. 放松拉伸 10分钟"
+                        ]
+                    },
+                    {
+                        day: "周五",
+                        focus: "综合训练",
+                        activities: [
+                            "1. 热身运动 10分钟",
+                            "2. 8公里跑 40分钟（符合《军事体育训练大纲》要求）",
+                            "3. 核心训练 20分钟",
+                            "4. 放松拉伸 10分钟"
+                        ]
+                    }
+                ];
+            }
+
+            // 5. 根据《军人体能训练标准》制定饮食计划
+            const dietPlan = {
+                breakfast: [
+                    "1. 全谷物主食（如全麦面包、燕麦片）",
+                    "2. 优质蛋白质（如鸡蛋、牛奶）",
+                    "3. 新鲜水果",
+                    "4. 适量坚果"
+                ],
+                lunch: [
+                    "1. 主食（米饭/面食）",
+                    "2. 优质蛋白质（鱼/肉/豆制品）",
+                    "3. 蔬菜（深色蔬菜为主）",
+                    "4. 适量水果"
+                ],
+                dinner: [
+                    "1. 主食（适量）",
+                    "2. 优质蛋白质",
+                    "3. 蔬菜",
+                    "4. 避免高油高盐"
+                ],
+                snacks: [
+                    "1. 水果",
+                    "2. 坚果",
+                    "3. 酸奶",
+                    "4. 全麦饼干"
+                ],
+                hydration: [
+                    "1. 每天饮水2000-2500ml",
+                    "2. 训练时及时补充水分",
+                    "3. 避免含糖饮料"
+                ]
+            };
+
+            // 6. 健康建议（基于《军事体育训练大纲》）
+            const healthAdvice = [
+                "1. 保持规律作息，确保充足睡眠（符合《军事体育训练大纲》要求）",
+                "2. 每天进行适量运动，避免久坐（符合《军事体育训练大纲》要求）",
+                "3. 保持良好心态，适当放松",
+                "4. 定期进行体检，关注健康指标（符合《军事体育训练大纲》要求）",
+                "5. 注意训练安全，循序渐进",
+                "6. 积极参与军事体育活动（符合《军事体育训练大纲》要求）",
+                "7. 关注军事体能知识，提高训练素养（符合《军事体育训练大纲》要求）"
+            ];
+
+            // 7. 特殊人群注意事项（基于《军事体育训练大纲》要求）
+            if (currentData.healthConditions.includes('heart_disease')) {
+                healthAdvice.push("8. 心脏病患者注意事项：\n   - 避免剧烈运动\n   - 保持适度运动强度\n   - 定期监测心率\n   - 随身携带急救药物\n   - 在医生指导下进行训练（符合《军事体育训练大纲》要求）");
+            }
+            if (currentData.healthConditions.includes('hypertension')) {
+                healthAdvice.push("9. 高血压患者注意事项：\n   - 控制训练强度\n   - 避免憋气动作\n   - 保持规律服药\n   - 定期监测血压\n   - 在医生指导下进行训练（符合《军事体育训练大纲》要求）");
+            }
+
+            // 8. 生成最终计划
+            plan.workout = [
+                "=== 训练计划（符合《军事体育训练大纲》要求）===",
+                `训练强度：${intensity}`,
+                "每周训练安排：",
+                ...weeklyPlan.map(day => 
+                    `\n${day.day}（${day.focus}）：\n${day.activities.join('\n')}`
+                ),
+                "\n注意事项：",
+                "1. 遵循循序渐进原则",
+                "2. 注意训练安全",
+                "3. 保持训练记录",
+                "4. 适时调整计划",
+                "5. 积极参与军事体育活动",
+                "6. 关注军事体能知识，提高训练素养"
+            ];
+
+            plan.diet = [
+                "=== 饮食计划（符合《军人体能训练标准》要求）===",
+                "早餐：",
+                ...dietPlan.breakfast,
+                "\n午餐：",
+                ...dietPlan.lunch,
+                "\n晚餐：",
+                ...dietPlan.dinner,
+                "\n加餐建议：",
+                ...dietPlan.snacks,
+                "\n饮水建议：",
+                ...dietPlan.hydration,
+                "\n饮食原则：",
+                "1. 均衡营养，多样化饮食",
+                "2. 控制总能量摄入",
+                "3. 增加全谷物和蔬菜水果摄入",
+                "4. 适量摄入优质蛋白质",
+                "5. 控制油盐糖摄入"
+            ];
+
+            plan.health = [
+                "=== 健康建议（符合《军事体育训练大纲》要求）===",
+                ...healthAdvice,
+                "\n=== 进度追踪 ===",
+                "1. 每周记录体重变化",
+                "2. 记录训练完成情况",
+                "3. 记录饮食情况",
+                "4. 定期评估计划效果",
+                "5. 参与军事体育活动",
+                "6. 关注军事体能知识更新"
+            ];
+
+            return plan;
+        }
+
+        function displayResults(plan) {
+            const resultArea = document.getElementById('resultContent');
+            
+            // 创建训练计划HTML
+            const workoutHTML = `
+                <div class="input-card p-6 mb-8">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-700">训练计划</h2>
+                    <div class="space-y-4">
+                        ${plan.workout.map(line => `
+                            <div class="border-l-4 border-blue-500 pl-4">
+                                <p class="text-gray-600">${line}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            // 创建饮食计划HTML
+            const dietHTML = `
+                <div class="input-card p-6 mb-8">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-700">饮食计划</h2>
+                    <div class="space-y-4">
+                        ${plan.diet.map(line => `
+                            <div class="border-l-4 border-green-500 pl-4">
+                                <p class="text-gray-600">${line}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            // 创建健康建议HTML
+            const healthHTML = `
+                <div class="input-card p-6 mb-8">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-700">健康建议</h2>
+                    <div class="space-y-4">
+                        ${plan.health.map(line => `
+                            <div class="border-l-4 border-yellow-500 pl-4">
+                                <p class="text-gray-600">${line}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            // 创建进度追踪HTML
+            const progressHTML = `
+                <div class="input-card p-6">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-700">进度追踪</h2>
+                    
+                    <!-- 每周目标 -->
+                    <div class="mb-6">
+                        <h3 class="text-xl font-medium text-gray-700 mb-3">每周目标</h3>
+                        ${plan.workout.slice(2).map(line => `
+                            <div class="mb-4">
+                                <h4 class="text-lg font-medium text-gray-700 mb-2">${line.split(': ')[1]}</h4>
+                                <p class="text-gray-600">${line.split(': ')[2]}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <!-- 进度指标 -->
+                    <div>
+                        <h3 class="text-xl font-medium text-gray-700 mb-3">进度指标</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            ${plan.workout.slice(2).map(line => {
+                                const [day, ...rest] = line.split(': ');
+                                const [current, target] = rest.join(': ').split(' ');
+                                return `
+                                    <div class="border rounded-lg p-4">
+                                        <h4 class="text-lg font-medium text-gray-700 mb-2">${day}</h4>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600">当前：${current}</span>
+                                            <span class="text-gray-600">目标：${target}</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                                            <div class="bg-blue-600 h-2.5 rounded-full" style="width: ${(current / target * 100)}%"></div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            resultArea.innerHTML = workoutHTML + dietHTML + healthHTML + progressHTML;
+        }
+
+        // 添加互斥选择功能
+        document.addEventListener('DOMContentLoaded', function() {
+            // 健康状况互斥选择
+            const healthCheckboxes = document.querySelectorAll('input[name="health_conditions"]');
+            healthCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    if (this.value === 'none' && this.checked) {
+                        healthCheckboxes.forEach(cb => {
+                            if (cb !== this) cb.checked = false;
+                        });
+                    } else if (this.checked) {
+                        const noneCheckbox = document.querySelector('input[name="health_conditions"][value="none"]');
+                        if (noneCheckbox) noneCheckbox.checked = false;
+                    }
+                });
+            });
+
+            // 运动习惯互斥选择
+            const exerciseHabits = document.querySelectorAll('input[name="exercise_habits"]');
+            const exerciseDetails = document.getElementById('exerciseDetails');
+            const runningDetails = document.getElementById('runningDetails');
+            const swimmingDetails = document.getElementById('swimmingDetails');
+            const gymDetails = document.getElementById('gymDetails');
+
+            // 运动习惯选择处理
+            exerciseHabits.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        exerciseHabits.forEach(cb => {
+                            if (cb !== this) cb.checked = false;
+                        });
+                        // 显示或隐藏运动详情
+                        exerciseDetails.classList.toggle('hidden', this.value === 'none');
+                    }
+                });
+            });
+
+            // 运动项目选择处理
+            const exerciseTypes = document.querySelectorAll('input[name="exercise_types"]');
+            exerciseTypes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    // 显示或隐藏相应的详情区域
+                    runningDetails.classList.toggle('hidden', !document.querySelector('input[name="exercise_types"][value="running"]').checked);
+                    swimmingDetails.classList.toggle('hidden', !document.querySelector('input[name="exercise_types"][value="swimming"]').checked);
+                    gymDetails.classList.toggle('hidden', !document.querySelector('input[name="exercise_types"][value="gym"]').checked);
+                });
+            });
+
+            // 饮食习惯互斥选择
+            const dietCheckboxes = document.querySelectorAll('input[name="diet_habits"]');
+            dietCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    if (this.value === 'none' && this.checked) {
+                        dietCheckboxes.forEach(cb => {
+                            if (cb !== this) cb.checked = false;
+                        });
+                    } else if (this.checked) {
+                        const noneCheckbox = document.querySelector('input[name="diet_habits"][value="none"]');
+                        if (noneCheckbox) noneCheckbox.checked = false;
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html> 
